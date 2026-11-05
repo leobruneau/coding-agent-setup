@@ -1,0 +1,13 @@
+{
+  "name": "leobruneau-skills",
+  "owner": {
+    "name": "Léo Bruneau"
+  },
+  "plugins": [
+    {
+      "name": "unattended-run",
+      "source": "./plugins/unattended-run",
+      "description": "Run a long task unattended through a chain of background orchestrator sessions, with a mission file, stop condition, watchdog and final summary."
+    }
+  ]
+}

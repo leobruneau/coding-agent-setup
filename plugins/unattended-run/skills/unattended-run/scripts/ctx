@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Print this Claude Code session's context-window usage from its transcript.
+# Usage: ctx [session_id] [max_tokens]   (defaults: $CLAUDE_CODE_SESSION_ID, 1000000)
+sid=${1:-$CLAUDE_CODE_SESSION_ID}
+max=${2:-1000000}
+[ -z "$sid" ] && { echo "ctx: no session id (CLAUDE_CODE_SESSION_ID unset)" >&2; exit 1; }
+f=$(ls ~/.claude/projects/*/"$sid".jsonl 2>/dev/null | head -1)
+[ -z "$f" ] && { echo "ctx: no transcript for session $sid" >&2; exit 1; }
+grep -v '"isSidechain":true' "$f" | grep -o '"usage":{[^}]*}' | tail -1 | awk -v max="$max" '
+{
+  n = 0
+  for (k in a) delete a[k]
+  while (match($0, /"[a-z_]+":[0-9]+/)) {
+    s = substr($0, RSTART, RLENGTH); split(s, p, ":"); gsub(/"/, "", p[1]); a[p[1]] = p[2]
+    $0 = substr($0, RSTART + RLENGTH)
+  }
+  used = a["input_tokens"] + a["cache_creation_input_tokens"] + a["cache_read_input_tokens"]
+  printf "%.1fK / %dK tokens (%.1f%%)\n", used / 1000, max / 1000, 100 * used / max
+  found = 1
+}
+END { if (!found) { print "ctx: no usage records yet" > "/dev/stderr"; exit 1 } }'
