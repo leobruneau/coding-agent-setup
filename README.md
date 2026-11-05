@@ -1,4 +1,4 @@
-# claude-skills
+# skills
 
 Claude Code skills by Léo Bruneau, packaged as a plugin marketplace.
 
@@ -13,11 +13,11 @@ Claude Code skills by Léo Bruneau, packaged as a plugin marketplace.
 In Claude Code:
 
 ```
-/plugin marketplace add leobruneau/claude-skills
+/plugin marketplace add leobruneau/skills
 /plugin install unattended-run@leobruneau-skills
 ```
 
-From a shell, `claude plugin marketplace add leobruneau/claude-skills` and
+From a shell, `claude plugin marketplace add leobruneau/skills` and
 `claude plugin install unattended-run@leobruneau-skills` do the same.
 
 The skill has `disable-model-invocation: true`, so Claude never starts it on its own. Type
