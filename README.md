@@ -1,55 +1,89 @@
-# skills
+# coding-agent-setup
 
-Claude Code skills by Léo Bruneau, packaged as a plugin marketplace.
+Léo Bruneau's Claude Code setup. The `claude/` folder mirrors `~/.claude`: global instructions,
+settings, skills and a local plugin. The repo root is also a plugin marketplace with plugins anyone
+can install.
 
-## Plugins
+## New machine
+
+```sh
+git clone https://github.com/leobruneau/coding-agent-setup ~/Documents/GithubRepos/coding-agent-setup
+cd ~/Documents/GithubRepos/coding-agent-setup
+./install.sh --dry-run   # print what would change
+./install.sh
+```
+
+Then restart Claude Code. You can also start Claude Code anywhere and say
+"set up this machine from github.com/leobruneau/coding-agent-setup"; `AGENTS.md` tells the agent what to do.
+
+`install.sh` needs `jq`. It does the following:
+
+- symlinks `CLAUDE.md`, each folder in `claude/skills/` and each folder in `claude/mods/` into `~/.claude`
+- merges `claude/settings.json` into `~/.claude/settings.json`. Repo keys win, keys that exist only on
+  the machine stay, and `{{HOME}}` becomes `$HOME`
+- moves every file it replaces to `~/.claude/backups/coding-agent-setup-<timestamp>/`
+
+Running it twice changes nothing. Because of the symlinks, the clone must stay where it is.
+
+## Saving changes
+
+Edits to `CLAUDE.md`, linked skills and mods go straight into the clone, since those are symlinks.
+Claude Code writes `settings.json` itself (for example when you enable a plugin), so copy it back:
+
+```sh
+./capture.sh   # copies settings.json, plus any new skill or mod folder in ~/.claude
+git diff
+git commit -am "Update settings" && git push
+```
+
+On other machines, `git pull && ./install.sh` applies the changes.
+
+## What is tracked
+
+| Path | Goes to | Contents |
+|---|---|---|
+| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions. Loads the unslop rules into every session. |
+| `claude/settings.json` | merged into `~/.claude/settings.json` | Model, effort, permission mode, denied tools, enabled plugins, plugin marketplaces |
+| `claude/skills/handoff` | `~/.claude/skills/handoff` | `/handoff` writes a handoff document and starts a fresh session with it |
+| `claude/skills/time-machine` | `~/.claude/skills/time-machine` | `/time-machine` reports past work from Claude Code and git history |
+| `claude/skills/unslop` | `~/.claude/skills/unslop` | Writing rules that strip AI patterns from prose |
+| `claude/mods/context-bar` | `~/.claude/mods/context-bar` | Local plugin that shows a context-usage bar above the prompt, loaded through `CLAUDE_CODE_PLUGIN_DIRS` |
+
+Not tracked: `~/.claude.json` (account and per-project state), history, sessions, caches, and
+`~/.claude/skills/synced` (claude.ai syncs it). Plugins from marketplaces are not copied either.
+`settings.json` lists them under `enabledPlugins` and `extraKnownMarketplaces`, and Claude Code installs them.
+
+## Plugin marketplace
 
 | Plugin | Skill | What it does |
 |---|---|---|
 | `unattended-run` | `/unattended-run:unattended-run` | Runs a long task (experiment search, issue backlog, refactor, sweep, literature review) unattended. Background orchestrator sessions hand off to each other through files in a run directory, a watchdog relaunches a stalled orchestrator, and a final summary session writes `FINAL_SUMMARY.md`. |
 
-## Install
-
-In Claude Code:
+To install without the rest of the setup:
 
 ```
-/plugin marketplace add leobruneau/skills
+/plugin marketplace add leobruneau/coding-agent-setup
 /plugin install unattended-run@leobruneau-skills
 ```
 
-From a shell, `claude plugin marketplace add leobruneau/skills` and
-`claude plugin install unattended-run@leobruneau-skills` do the same.
+The marketplace keeps the name `leobruneau-skills` so existing installs keep working. The plugin
+manifests set no `version`, so every new commit on `main` counts as an update; run
+`/plugin marketplace update leobruneau-skills` or enable auto-update for the marketplace in `/plugin`.
 
-The skill has `disable-model-invocation: true`, so Claude never starts it on its own. Type
-`/unattended-run:unattended-run` followed by the goal.
-
-## Update
-
-```
-/plugin marketplace update leobruneau-skills
-```
-
-The plugin manifests set no `version`, so every new commit on `main` counts as an update. To get updates
-at startup without running the command, open `/plugin`, go to Marketplaces, select `leobruneau-skills`
-and enable auto-update.
-
-## Requirements
-
-- bash, GNU or BSD `date` and `stat`
-- a Claude Code version with `claude --bg`, `claude agents --json` and `claude stop`
-- a trusted workspace: `claude --bg` refuses a folder whose trust prompt nobody has accepted
+`unattended-run` has `disable-model-invocation: true`, so Claude never starts it on its own. It needs bash,
+GNU or BSD `date` and `stat`, a Claude Code version with `claude --bg`, `claude agents --json` and
+`claude stop`, and a trusted workspace.
 
 ## Layout
 
 ```
-.claude-plugin/marketplace.json              lists the plugins
-plugins/unattended-run/
-  .claude-plugin/plugin.json
-  skills/unattended-run/
-    SKILL.md
-    scripts/                                 copied into each run's tools/ folder
-    templates/                               MISSION.md, PLAN.md, run.env and the other run files
+AGENTS.md                         steps for an agent asked to set up a machine
+install.sh, capture.sh
+claude/                           mirrors ~/.claude
+.claude-plugin/marketplace.json   lists the marketplace plugins
+plugins/<name>/                   one folder per marketplace plugin
 ```
 
-To add a skill, create `plugins/<name>/.claude-plugin/plugin.json` and `plugins/<name>/skills/<name>/SKILL.md`,
-then add an entry to `.claude-plugin/marketplace.json`.
+To add a personal skill, create it in `~/.claude/skills/<name>/` and run `./capture.sh` then `./install.sh`.
+To add a marketplace plugin, create `plugins/<name>/.claude-plugin/plugin.json` and
+`plugins/<name>/skills/<name>/SKILL.md`, then add an entry to `.claude-plugin/marketplace.json`.
