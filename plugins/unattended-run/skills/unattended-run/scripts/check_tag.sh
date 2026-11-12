@@ -15,8 +15,10 @@ trap 'rm -f "$used"' EXIT
 claude agents --json </dev/null 2>/dev/null \
   | sed -n 's/^ *"name": *"\(.*\)",\{0,1\}$/\1/p' | sed 's/ | .*//' >>"$used"
 # Tags of earlier run folders: unattended-run-YYYY-MM-DD-HHMM[SS]-<tag>.
-find "$parent" -maxdepth 1 -name "unattended-run-*" -printf '%f\n' 2>/dev/null \
-  | sed -E 's/^unattended-run-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4,6}-//' >>"$used"
+# A glob, not find -printf: BSD find on macOS has no -printf, and the error went to /dev/null.
+for d in "$parent"/unattended-run-*; do
+  [[ -d $d ]] && basename "$d"
+done | sed -E 's/^unattended-run-[0-9]{4}-[0-9]{2}-[0-9]{2}-[0-9]{4,6}-//' >>"$used"
 if grep -qxF -- "$tag" "$used"; then
   echo "check_tag.sh: '$tag' is already used by an open session or a run folder in $parent" >&2
   exit 1

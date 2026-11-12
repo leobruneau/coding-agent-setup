@@ -74,8 +74,9 @@ manifests set no `version`, so every new commit on `main` counts as an update; r
 `/plugin marketplace update leobruneau-skills` or enable auto-update for the marketplace in `/plugin`.
 
 `unattended-run` has `disable-model-invocation: true`, so Claude never starts it on its own. It needs bash,
-GNU or BSD `date` and `stat`, a Claude Code version with `claude --bg`, `claude agents --json` and
-`claude stop`, and a trusted workspace.
+GNU or BSD `date` and `stat`, perl on macOS (the skill ships a `setsid` stand-in), a Claude Code version
+with `claude --bg` and `claude agents --json`, and a trusted workspace. On a laptop, keep it on power
+with the lid open: `caffeinate` stops idle sleep, but closing the lid still sleeps the machine.
 
 ## Layout
 
