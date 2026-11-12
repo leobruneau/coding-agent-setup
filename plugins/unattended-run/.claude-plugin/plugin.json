@@ -2,7 +2,7 @@
   "name": "unattended-run",
   "description": "Run a long task unattended through a chain of background orchestrator sessions, with a mission file, stop condition, watchdog and final summary.",
   "author": {
-    "name": "Léo Bruneau"
+    "name": "leobruneau"
   },
   "repository": "https://github.com/leobruneau/coding-agent-setup"
 }

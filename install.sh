@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Apply the Claude Code setup in claude/ to ~/.claude.
 #
-# - Symlinks CLAUDE.md, every folder in claude/skills and every folder in claude/mods into ~/.claude,
-#   so edits made on this machine land in the repo.
+# - Symlinks CLAUDE.md, every folder in claude/skills and claude/mods, and every file in claude/hooks
+#   into ~/.claude, so edits made on this machine land in the repo.
 # - Merges claude/settings.json into ~/.claude/settings.json. Keys from the repo win; keys that only
 #   exist locally stay. {{HOME}} in the template becomes $HOME.
 # - Moves anything it would replace to ~/.claude/backups/coding-agent-setup-<timestamp>/.
@@ -41,6 +41,8 @@ link() { # link <target in repo> <path in ~/.claude>
 link "$src/CLAUDE.md" "$dest/CLAUDE.md"
 for d in "$src"/skills/*/; do d="${d%/}"; link "$d" "$dest/skills/$(basename "$d")"; done
 for d in "$src"/mods/*/;   do d="${d%/}"; link "$d" "$dest/mods/$(basename "$d")"; done
+run mkdir -p "$dest/hooks"
+for f in "$src"/hooks/*;   do link "$f" "$dest/hooks/$(basename "$f")"; done
 
 rendered="$(sed "s|{{HOME}}|$HOME|g" "$src/settings.json")"
 settings="$dest/settings.json"

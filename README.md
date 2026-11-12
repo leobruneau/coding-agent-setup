@@ -1,14 +1,14 @@
 # coding-agent-setup
 
-Léo Bruneau's Claude Code setup. The `claude/` folder mirrors `~/.claude`: global instructions,
-settings, skills and a local plugin. The repo root is also a plugin marketplace with plugins anyone
+A personal Claude Code setup. The `claude/` folder mirrors `~/.claude`. It holds global instructions,
+settings, hooks, skills and a local plugin. The repo root is also a plugin marketplace with plugins anyone
 can install.
 
 ## New machine
 
 ```sh
-git clone https://github.com/leobruneau/coding-agent-setup ~/Documents/GithubRepos/coding-agent-setup
-cd ~/Documents/GithubRepos/coding-agent-setup
+git clone https://github.com/leobruneau/coding-agent-setup ~/coding-agent-setup
+cd ~/coding-agent-setup
 ./install.sh --dry-run   # print what would change
 ./install.sh
 ```
@@ -18,7 +18,8 @@ Then restart Claude Code. You can also start Claude Code anywhere and say
 
 `install.sh` needs `jq`. It does the following:
 
-- symlinks `CLAUDE.md`, each folder in `claude/skills/` and each folder in `claude/mods/` into `~/.claude`
+- symlinks `CLAUDE.md`, each folder in `claude/skills/` and `claude/mods/`, and each file in
+  `claude/hooks/` into `~/.claude`
 - merges `claude/settings.json` into `~/.claude/settings.json`. Repo keys win, keys that exist only on
   the machine stay, and `{{HOME}}` becomes `$HOME`
 - moves every file it replaces to `~/.claude/backups/coding-agent-setup-<timestamp>/`
@@ -42,8 +43,10 @@ On other machines, `git pull && ./install.sh` applies the changes.
 
 | Path | Goes to | Contents |
 |---|---|---|
-| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions. Loads the unslop rules into every session. |
-| `claude/settings.json` | merged into `~/.claude/settings.json` | Model, effort, permission mode, denied tools, enabled plugins, plugin marketplaces |
+| `claude/CLAUDE.md` | `~/.claude/CLAUDE.md` | Global instructions |
+| `claude/settings.json` | merged into `~/.claude/settings.json` | Model, effort, permission mode, denied tools, hooks, enabled plugins, plugin marketplaces |
+| `claude/hooks/load-unslop.sh` | `~/.claude/hooks/load-unslop.sh` | SessionStart hook. Adds the unslop rules to the context at startup, after `/clear` and after `/compact`. |
+| `claude/hooks/context-alert.sh` | `~/.claude/hooks/context-alert.sh` | Runs after every tool call and prompt. When the context passes 100k, 125k and 150k tokens, it tells the agent once per threshold, with a stronger handoff request each time. |
 | `claude/skills/handoff` | `~/.claude/skills/handoff` | `/handoff` writes a handoff document and starts a fresh session with it |
 | `claude/skills/time-machine` | `~/.claude/skills/time-machine` | `/time-machine` reports past work from Claude Code and git history |
 | `claude/skills/unslop` | `~/.claude/skills/unslop` | Writing rules that strip AI patterns from prose |

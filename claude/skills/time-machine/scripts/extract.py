@@ -16,7 +16,7 @@ Usage:
   extract.py --list                       # list projects + date ranges, then exit
   extract.py --since 2026-06-01            # all projects since a date
   extract.py --days 7                      # all projects, last N days
-  extract.py --since 2026-06-01 --project harmonic-tension
+  extract.py --since 2026-06-01 --project my-project
   extract.py --since 2026-06-01 --until 2026-06-15 --project foo --project bar
 
 Time bounds are inclusive dates (YYYY-MM-DD), compared in UTC. --project

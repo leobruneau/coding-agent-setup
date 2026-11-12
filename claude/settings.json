@@ -77,5 +77,39 @@
     }
   },
   "tui": "fullscreen",
-  "autoMemoryEnabled": false
+  "autoMemoryEnabled": false,
+  "hooks": {
+    "SessionStart": [
+      {
+        "matcher": "startup|clear|compact",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOME}}/.claude/hooks/load-unslop.sh"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOME}}/.claude/hooks/context-alert.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "{{HOME}}/.claude/hooks/context-alert.sh"
+          }
+        ]
+      }
+    ]
+  }
 }

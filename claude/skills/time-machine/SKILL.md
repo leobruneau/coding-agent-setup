@@ -63,7 +63,7 @@ the user might mean but didn't name precisely.
 
 ```bash
 # focused: one project, full detail (prompts + Claude's summaries + every action):
-python3 ~/.claude/skills/time-machine/scripts/extract.py --since 2026-06-01 --until 2026-06-15 --project harmonic-tension
+python3 ~/.claude/skills/time-machine/scripts/extract.py --since 2026-06-01 --until 2026-06-15 --project my-project
 
 # wide: many projects / long window, compact (--brief):
 python3 ~/.claude/skills/time-machine/scripts/extract.py --days 30 --brief
@@ -161,7 +161,7 @@ the work split across them.>
 ## Output
 
 Write the report to `~/time-machine-reports/` with a descriptive, timestamped
-name, e.g. `~/time-machine-reports/2026-06-29_harmonic-tension_jun.md` (create
+name, e.g. `~/time-machine-reports/2026-06-29_my-project_jun.md` (create
 the directory if needed). Then print a short summary in chat — a few sentences
 on what the period covered — and the path to the full file. Don't paste the
 whole report into chat; that's what the file is for.
