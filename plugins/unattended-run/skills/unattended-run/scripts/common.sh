@@ -4,6 +4,8 @@ TOOLS=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck source=/dev/null
 source "$TOOLS/run.env"
 LOG="$RUN_DIR/LOG.md"
+# macOS has no setsid(1). tools/setsid is a perl stand-in. It goes last on PATH, so a real setsid wins.
+export PATH="$PATH:$TOOLS"
 
 # log <text>: append a timestamped line to LOG.md.
 log() { echo "- $(date '+%Y-%m-%d %H:%M') $*" >> "$LOG"; }

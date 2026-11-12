@@ -1,6 +1,8 @@
 #!/bin/bash
 # Start the run's detached processes: the watchdog, and the STOP_AT and SUMMARY_AT timers when run.env
 # sets them. Each runs under nohup and setsid, outside any Claude session, and logs its PID in LOG.md.
+# On macOS it also starts caffeinate for as long as the watchdog lives, so the machine doesn't idle-sleep.
+# Closing the lid still sleeps it.
 #   <run_dir>/tools/start_timers.sh
 # Skips the watchdog if timer.pids lists one that is still alive.
 source "$(dirname "$0")/common.sh"
@@ -17,6 +19,11 @@ if [[ -n $STOP_AT ]]; then
   start "$TOOLS/run_at.sh" "$SUMMARY_AT" "$TOOLS/launch_summary.sh"
 fi
 sleep 2
+wd=$(awk '$2 == "watchdog" {print $1}' "$TOOLS/timer.pids" 2>/dev/null | tail -1)
+if command -v caffeinate >/dev/null && [[ -n $wd ]]; then
+  start caffeinate -ims -w "$wd"
+  log "start_timers: caffeinate keeps the machine awake while watchdog pid $wd runs"
+fi
 echo "processes in timer.pids:"
 while read -r pid what _; do
   if kill -0 "$pid" 2>/dev/null; then echo "  $pid $what alive"; else echo "  $pid $what not running"; fi
