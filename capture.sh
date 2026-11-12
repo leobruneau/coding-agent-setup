@@ -2,7 +2,7 @@
 # Copy local Claude Code changes from ~/.claude back into claude/, then list what changed.
 #
 # - Rewrites claude/settings.json from ~/.claude/settings.json, with $HOME replaced by {{HOME}}.
-# - Copies CLAUDE.md, skills and mods that are plain files in ~/.claude (not symlinks into this repo).
+# - Copies CLAUDE.md, skills, mods and hooks/*.sh that are plain files in ~/.claude (not symlinks into this repo).
 #   Run ./install.sh afterwards to replace them with symlinks.
 # - Skips ~/.claude/skills/synced, which claude.ai manages.
 #
@@ -30,6 +30,13 @@ for kind in skills mods; do
     rsync -a --exclude '.DS_Store' --exclude 'types/claude-code*' "$d/" "$src/$kind/$name/"
     echo "copied  $kind/$name"
   done
+done
+
+mkdir -p "$src/hooks"
+for f in "$dest"/hooks/*.sh; do
+  [[ -f "$f" && ! -L "$f" ]] || continue
+  cp "$f" "$src/hooks/"
+  echo "copied  hooks/$(basename "$f")"
 done
 
 git -C "$repo" status --short
